@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SANTRI DISIPLIN</title>
+    <link id="manifest-placeholder" rel="manifest">
+    <meta name="theme-color" content="#10b981">
+    <link rel="apple-touch-icon" href="https://iili.io/fFA80TF.md.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid rgba(241, 245, 249, 1);
+            box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .modal-overlay { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-24 relative overflow-x-hidden selection:bg-emerald-200">
+
+<header class="pt-8 pb-5 text-center px-4 relative z-10">
+    <div class="absolute top-4 right-4">
+        <button onclick="openInstallModal()" class="bg-white border border-emerald-100 text-emerald-700 shadow-sm px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-50 transition-all">
+            <i class="ph ph-download-simple text-sm"></i> Unduh App
+        </button>
+    </div>
+    <div class="inline-block relative mt-4">
+        <div class="absolute inset-0 bg-emerald-500 rounded-full blur-xl opacity-20 transform scale-90"></div>
+        <img src="https://iili.io/fFA80TF.md.png" alt="Logo" class="relative h-20 w-auto mx-auto mb-3 drop-shadow-lg rounded-full object-contain">
+    </div>
+    <h1 class="text-2xl font-extrabold text-emerald-900 tracking-tight">SANTRI DISIPLIN</h1>
+    <p class="text-xs text-slate-500 mt-1.5 font-medium px-4">Sistem Pencatatan Keterlambatan SD International Tahfizh Quran</p>
+</header>
+
+<div class="max-w-3xl mx-auto px-4 mb-6 relative z-10 sticky top-4">
+    <div class="flex rounded-2xl bg-white p-1.5 shadow-sm border border-slate-200 backdrop-blur-md bg-white/90">
+        <button onclick="switchTab('catat')" id="nav-catat" class="flex-1 py-3 text-sm font-bold rounded-xl bg-emerald-600 text-white shadow-md transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-95">
+            <i class="ph ph-user-focus text-lg"></i> Catat
+        </button>
+        <button onclick="switchTab('laporan')" id="nav-laporan" class="flex-1 py-3 text-sm font-bold rounded-xl text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-95">
+            <i class="ph ph-files text-lg"></i> Laporan
+        </button>
+        <button onclick="switchTab('pengaturan')" id="nav-pengaturan" class="flex-1 py-3 text-sm font-bold rounded-xl text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-95">
+            <i class="ph ph-gear-six text-lg"></i> Seting
+        </button>
+    </div>
+</div>
+
+<div id="loading-indicator" class="flex flex-col items-center justify-center p-12 space-y-4 max-w-3xl mx-auto">
+   <div class="animate-spin rounded-full h-10 w-10 border-b-4 border-emerald-600"></div>
+   <p class="text-slate-500 text-xs font-semibold animate-pulse">Menghubungkan ke Database Santri...</p>
+</div>
+
+<main id="main-content" class="max-w-3xl mx-auto px-4 hidden relative z-10">
+    <!-- Tab Catat -->
+    <section id="tab-catat" class="space-y-4">
+        <div class="glass-card rounded-2xl p-5">
+            <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Pencarian Cepat</label>
+            <div class="relative">
+                <i class="ph ph-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg"></i>
+                <input type="text" id="search-input" autocomplete="off" class="w-full pl-11 pr-10 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-sm font-semibold text-slate-800 placeholder-slate-400" placeholder="Ketik nama santri...">
+                <button id="clear-search" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-red-500 hidden p-1">
+                    <i class="ph ph-x-circle text-xl"></i>
+                </button>
+            </div>
+            <div class="relative">
+                <div id="search-results" class="absolute w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-72 overflow-y-auto custom-scrollbar z-50 hidden divide-y divide-slate-100">
+                </div>
+            </div>
+        </div>
+
+        <div id="selected-student-card" class="glass-card rounded-2xl overflow-hidden hidden transform transition-all duration-300 relative border-2 border-emerald-100">
+            <div id="saving-overlay" class="absolute inset-0 bg-white/95 backdrop-blur-md z-50 hidden flex-col items-center justify-center p-6 text-center rounded-2xl">
+                <div class="w-full max-w-[200px] bg-slate-200 rounded-full h-3 mb-3 overflow-hidden shadow-inner">
+                    <div id="progress-bar" class="bg-emerald-500 h-3 rounded-full w-0 transition-all duration-100 ease-linear"></div>
+                </div>
+                <p class="font-extrabold text-emerald-800 text-3xl mb-1" id="progress-text">0%</p>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest animate-pulse">Menyimpan & Menghitung Akumulasi...</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-emerald-600 to-teal-800 p-5 flex items-center gap-4 text-white">
+                <div class="relative shrink-0 cursor-pointer group" onclick="openPhotoModal(document.getElementById('sel-foto').src)">
+                    <img id="sel-foto" src="" alt="Foto Santri" class="w-20 h-20 rounded-xl object-cover border-2 border-white/50 bg-white shadow-lg group-hover:opacity-90 transition-opacity">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-xl">
+                        <i class="ph ph-magnifying-glass-plus text-white text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-[10px] font-bold text-emerald-200 uppercase tracking-widest mb-1 flex items-center gap-1">
+                        <i class="ph ph-identification-card"></i> Profil Santri
+                    </h3>
+                    <div id="sel-nama" class="text-lg font-extrabold leading-tight truncate uppercase">NAMA SANTRI</div>
+                </div>
+            </div>
+            
+            <div class="p-5 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase mb-0.5">Kelas SD</div>
+                        <div id="sel-kelas-sd" class="text-sm font-extrabold text-slate-800 truncate">-</div>
+                        <div class="text-[11px] font-medium text-slate-500 mt-0.5 truncate" id="sel-wali-sd">-</div>
+                    </div>
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                        <div class="text-[10px] font-bold text-emerald-600 uppercase mb-0.5">Tahfizh</div>
+                        <div id="sel-kelas-tahfizh" class="text-sm font-extrabold text-emerald-900 truncate">-</div>
+                        <div class="text-[11px] font-medium text-emerald-600 mt-0.5 truncate" id="sel-wali-tahfizh">-</div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-4 mt-4">
+                    <h3 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wide">Pencatatan Waktu (Format 24 Jam)</h3>
+                    <div class="grid grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Jam Kedatangan (Otomatis)</label>
+                            <div class="flex items-center gap-1 bg-slate-50 border border-slate-300 rounded-lg px-2 py-2">
+                                <input type="number" id="arr-h" class="w-full bg-transparent outline-none font-bold text-sm text-slate-800 text-center" placeholder="Jam" min="0" max="23">
+                                <span class="font-bold text-slate-400">:</span>
+                                <input type="number" id="arr-m" class="w-full bg-transparent outline-none font-bold text-sm text-slate-800 text-center" placeholder="Mnt" min="0" max="59">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-red-500 mb-1">Menit Terlambat (Edit)</label>
+                            <div class="relative">
+                                <input type="number" id="late-minutes" class="w-full pl-2 pr-12 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-extrabold text-sm text-center" min="0" placeholder="0">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-[10px] font-bold text-red-600 uppercase">Menit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-save" class="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-emerald-200 transition-all duration-200 active:scale-95 flex justify-center items-center gap-2">
+                    <i class="ph ph-paper-plane-tilt text-xl"></i> Konfirmasi & Kirim
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tab Laporan -->
+    <section id="tab-laporan" class="hidden space-y-4">
+        <div class="glass-card rounded-2xl p-5">
+            <div class="flex flex-col gap-3 mb-4 border-b border-slate-100 pb-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-extrabold text-slate-800">Rekap Keterlambatan</h2>
+                        <p id="laporan-tanggal" class="text-xs text-slate-500 font-medium"></p>
+                    </div>
+                    <button onclick="fetchLatenessHistory(true)" class="bg-blue-50 border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5 font-extrabold shadow-sm text-xs hover:bg-blue-100 transition-colors active:scale-95">
+                        <i class="ph ph-arrows-clockwise text-base" id="refresh-icon"></i> Refresh Data
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                    <div class="relative">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="report-search" placeholder="Cari nama santri..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:border-emerald-500 transition-colors">
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="report-filter-type" class="flex-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:border-emerald-500 cursor-pointer">
+                            <option value="today">Hari Ini</option>
+                            <option value="all">Semua Data</option>
+                            <option value="date">Pilih Tanggal...</option>
+                        </select>
+                        <input type="date" id="report-date-picker" class="hidden flex-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:border-emerald-500 cursor-pointer text-slate-600">
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar border border-slate-200 rounded-xl mb-4">
+                <table class="w-full text-left whitespace-nowrap">
+                    <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase font-extrabold tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="py-2.5 px-3 text-center w-10">No</th>
+                            <th class="py-2.5 px-3">Nama Santri & Kelas</th>
+                            <th class="py-2.5 px-3 text-center">Tgl/Waktu</th>
+                            <th class="py-2.5 px-3 text-center">Akumulasi</th>
+                            <th class="py-2.5 px-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-tbody" class="divide-y divide-slate-100 bg-white text-sm">
+                    </tbody>
+                </table>
+            </div>
+
+            <button id="btn-copy-wa" class="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-3.5 rounded-xl font-bold shadow-lg shadow-green-200 transition-all duration-200 active:scale-95 flex justify-center items-center gap-2">
+                <i class="ph ph-whatsapp-logo text-2xl"></i> Salin Format WA (Hari Ini)
+            </button>
+        </div>
+    </section>
+
+    <!-- Tab Pengaturan -->
+    <section id="tab-pengaturan" class="hidden space-y-4">
+        <div class="glass-card rounded-2xl p-5">
+            <h2 class="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
+                <i class="ph ph-gear-six text-emerald-600 text-xl"></i> Pengaturan Aplikasi
+            </h2>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Jadwal Masuk (WIB)</label>
+                    <div class="flex items-center gap-2 max-w-[220px]">
+                        <div class="flex flex-1 items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-emerald-500 shadow-inner">
+                            <select id="set-h" class="w-full bg-transparent outline-none font-bold text-slate-800 text-center appearance-none text-lg cursor-pointer"></select>
+                            <span class="font-bold text-slate-400 text-lg">:</span>
+                            <select id="set-m" class="w-full bg-transparent outline-none font-bold text-slate-800 text-center appearance-none text-lg cursor-pointer"></select>
+                        </div>
+                        <span class="font-bold text-slate-600 text-sm">WIB</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">Waktu terlambat dikalkulasi otomatis dari jam ini.</p>
+                </div>
+                <button id="btn-save-settings" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg transition-all duration-200 active:scale-95 flex justify-center items-center gap-2">
+                    <i class="ph ph-floppy-disk text-xl"></i> Simpan Pengaturan
+                </button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Modals -->
+<div id="photo-modal" class="fixed inset-0 z-[100] hidden items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
+    <div class="relative w-11/12 max-w-sm mx-auto flex flex-col items-center">
+        <button onclick="closePhotoModal()" class="absolute -top-12 right-0 text-white hover:text-red-400 bg-slate-800/50 rounded-full p-2 transition-colors">
+            <i class="ph ph-x text-2xl"></i>
+        </button>
+        <img id="zoomed-photo" src="" class="w-full h-auto rounded-2xl shadow-2xl border-4 border-white object-contain bg-slate-200 max-h-[70vh]">
+    </div>
+</div>
+
+<div id="install-modal" class="fixed inset-0 z-[100] hidden items-end sm:items-center justify-center modal-overlay opacity-0 transition-opacity duration-300 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl transform translate-y-10 transition-transform duration-300" id="install-card">
+        <div class="text-center mb-5">
+            <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-emerald-600">
+                <i class="ph ph-download-simple text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-800">Unduh Aplikasi</h3>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Pasang di layar utama HP agar cepat diakses.</p>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm space-y-3 font-medium text-slate-700">
+            <p class="flex gap-3"><i class="ph ph-device-mobile text-emerald-600 text-lg"></i> <b>Android (Chrome):</b><br>Klik ikon titik 3, lalu pilih "Tambahkan ke Layar Utama".</p>
+            <hr class="border-slate-200">
+            <p class="flex gap-3"><i class="ph ph-apple-logo text-slate-800 text-lg"></i> <b>iPhone (Safari):</b><br>Klik ikon Share di bawah, pilih "Add to Home Screen".</p>
+        </div>
+        <button onclick="closeInstallModal()" class="w-full mt-5 bg-slate-800 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform">Saya Mengerti</button>
+    </div>
+</div>
+
+<div id="confirm-delete-modal" class="fixed inset-0 z-[200] hidden items-center justify-center modal-overlay opacity-0 transition-opacity duration-300 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl text-center transform scale-95 transition-transform duration-300" id="confirm-delete-card">
+        <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-red-600">
+            <i class="ph ph-trash text-3xl"></i>
+        </div>
+        <h3 class="text-lg font-extrabold text-slate-800">Hapus Data Ini?</h3>
+        <p class="text-xs text-slate-500 mt-1 font-medium mb-5">Data keterlambatan akan dihapus dari laporan dan database (Google Sheets).</p>
+        <div class="flex gap-3">
+            <button onclick="cancelDelete()" class="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-bold active:scale-95 transition-transform">Batal</button>
+            <button onclick="proceedDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform shadow-lg shadow-red-200">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-2xl transition-all duration-300 translate-y-24 opacity-0 z-[150] flex items-center gap-3 font-semibold text-sm whitespace-nowrap border border-slate-700">
+    <i class="ph ph-info text-xl" id="toast-icon"></i>
+    <span id="toast-msg">Pesan...</span>
+</div>
+
+<script>
+    // URL MASTER DAN LAPORAN CSV
+    const csvMasterUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTj9NDKstrj0d9JH7PSMGc4X9ZP1JEarvqoXhF2BZcesqs52oW_jYNKd_fI832uYg/pub?gid=1632329455&single=true&output=csv";
+    const reportCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSlONmFky_tljr8n5OjKhzuP8gJN7L1q094DN5h4G6XjBdRErC5YCHrko4JZbnui2LceOcRNau1xEqo/pub?gid=1765622281&single=true&output=csv";
+    const gasExecUrl = "https://script.google.com/macros/s/AKfycbzA6znVpXox-MYW1ZyHKuGSqdSB5mungMT-TxHLsBZol4cM1x-Z0BqByTDnu3GtlrTR/exec";
+
+    let studentsData = [];
+    let allLatenessRecords = [];
+    let selectedStudent = null;
+    let jamMasukSetting = localStorage.getItem('santri_jamMasuk') || '07:30';
+    let recordToDelete = null;
+
+    // PWA Manifest generator (Safe Sandbox check)
+    try {
+        const pwaManifest = {
+          "name": "Santri Disiplin", "short_name": "Disiplin App", "start_url": ".", "display": "standalone",
+          "background_color": "#f8fafc", "theme_color": "#10b981",
+          "icons": [{"src": "https://iili.io/fFA80TF.md.png", "sizes": "512x512", "type": "image/png"}]
+        };
+        const blob = new Blob([JSON.stringify(pwaManifest)], {type: 'application/json'});
+        document.getElementById('manifest-placeholder').setAttribute('href', URL.createObjectURL(blob));
+    } catch(err) { console.log("PWA Manifest sandbox active."); }
+
+    function initTimeDropdowns() {
+        const hOpts = Array.from({length: 24}, (_, i) => `<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`).join('');
+        const mOpts = Array.from({length: 60}, (_, i) => `<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`).join('');
+        const setH = document.getElementById('set-h');
+        const setM = document.getElementById('set-m');
+        if(setH) setH.innerHTML = hOpts;
+        if(setM) setM.innerHTML = mOpts;
+    }
+
+    const getFormattedDateId = () => {
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const d = new Date();
+        return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    };
+
+    const getFormattedDateOnly = () => {
+        const d = new Date();
+        return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    };
+
+    function toTitleCase(str) {
+        if(!str) return '-';
+        return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+
+    // EXTRACTION FOTO PRESISI (Menggunakan logika referensi user)
+    function extractPhotoUrl(student, name) {
+        let photoURL = '';
+        
+        // Cari di seluruh key object student secara fleksibel
+        let fotoHTML = '';
+        let linkFoto = '';
+        for (const key in student) {
+            const k = key.trim().toUpperCase();
+            if (k === 'FOTO') fotoHTML = student[key] || '';
+            if (k === 'LINK FOTO' || k === 'LINKFOTO') linkFoto = student[key] || '';
+        }
+
+        if (fotoHTML) {
+            const srcMatch = fotoHTML.match(/src=["']?([^"'\s>]+)/i);
+            if (srcMatch && srcMatch[1]) {
+                photoURL = srcMatch[1];
+            }
+        }
+        
+        if (!photoURL && linkFoto) {
+            photoURL = linkFoto;
+        }
+
+        if (photoURL && photoURL.includes('drive.google.com')) {
+            let matchDrive = photoURL.match(/\/d\/([a-zA-Z0-9-_]+)/) || photoURL.match(/id=([a-zA-Z0-9-_]+)/);
+            if(matchDrive && matchDrive[1]) {
+                photoURL = `https://drive.google.com/thumbnail?id=${matchDrive[1]}&sz=w400-h400`;
+            }
+        }
+
+        if (!photoURL || photoURL.trim() === '') {
+            photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'Santri')}&background=10b981&color=fff&bold=true`;
+        }
+
+        return photoURL;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initTimeDropdowns();
+        const [h, m] = jamMasukSetting.split(':');
+        const setH = document.getElementById('set-h');
+        const setM = document.getElementById('set-m');
+        if(setH) setH.value = h || '07';
+        if(setM) setM.value = m || '30';
+        
+        const lapTgl = document.getElementById('laporan-tanggal');
+        if(lapTgl) lapTgl.textContent = getFormattedDateId();
+        
+        if (typeof Papa !== 'undefined') {
+            fetchMasterDataCSV();
+            fetchLatenessHistory(false);
+        } else {
+            showErrorState("Sistem pembaca data gagal dimuat.");
+        }
+        
+        setupEventListeners();
+    });
+
+    function setupEventListeners() {
+        const arrH = document.getElementById('arr-h');
+        const arrM = document.getElementById('arr-m');
+        if(arrH) arrH.addEventListener('input', updateLateMinutes);
+        if(arrM) arrM.addEventListener('input', updateLateMinutes);
+        
+        const repSearch = document.getElementById('report-search');
+        if(repSearch) repSearch.addEventListener('input', renderTable);
+        
+        const repFilter = document.getElementById('report-filter-type');
+        if(repFilter) {
+            repFilter.addEventListener('change', (e) => {
+                const datePicker = document.getElementById('report-date-picker');
+                if(e.target.value === 'date') {
+                    datePicker.classList.remove('hidden');
+                    if(!datePicker.value) { 
+                        const d = new Date();
+                        datePicker.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    }
+                } else {
+                    datePicker.classList.add('hidden');
+                }
+                renderTable();
+            });
+        }
+        
+        const repDatePick = document.getElementById('report-date-picker');
+        if(repDatePick) repDatePick.addEventListener('change', renderTable);
+        
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const clearSearchBtn = document.getElementById('clear-search');
+
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value.toLowerCase().trim();
+                searchResults.innerHTML = '';
+                if (val.length < 1) {
+                    searchResults.classList.add('hidden'); 
+                    if(clearSearchBtn) clearSearchBtn.classList.add('hidden'); 
+                    return;
+                }
+                if(clearSearchBtn) clearSearchBtn.classList.remove('hidden');
+                
+                const matches = studentsData.filter(s => {
+                    const name = s['Nama Siswa'] || s['NAMA SISWA'] || '';
+                    return name.toLowerCase().includes(val);
+                }).slice(0, 8);
+                
+                if (matches.length > 0) {
+                    searchResults.classList.remove('hidden');
+                    matches.forEach(s => {
+                        const sName = s['Nama Siswa'] || s['NAMA SISWA'] || 'Santri';
+                        const div = document.createElement('div');
+                        div.className = 'px-4 py-3 hover:bg-emerald-50 cursor-pointer transition-colors flex items-center gap-3';
+                        const photoSrc = extractPhotoUrl(s, sName);
+                        div.innerHTML = `
+                            <img src="${photoSrc}" class="w-10 h-10 rounded-full object-cover shrink-0 bg-slate-200 border border-slate-200" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sName)}&background=10b981&color=fff&bold=true'">
+                            <div class="flex-1 min-w-0">
+                                <div class="font-extrabold text-slate-800 text-sm leading-none truncate">${toTitleCase(sName)}</div>
+                                <div class="text-[10px] font-medium text-slate-500 mt-1.5 flex flex-wrap gap-x-2 gap-y-1">
+                                    <span class="bg-emerald-100 text-emerald-800 px-1.5 rounded uppercase">TH: ${s['ROMBEL TAHFIZH'] || s['ROMBEL_TAHFIZH'] || '-'}</span>
+                                    <span class="bg-slate-100 text-slate-600 px-1.5 rounded uppercase">SD: ${s['KELAS SD'] || s['KELAS_SD'] || '-'}</span>
+                                </div>
+                            </div>
+                        `;
+                        div.onclick = () => selectStudent(s);
+                        searchResults.appendChild(div);
+                    });
+                } else {
+                    searchResults.classList.remove('hidden');
+                    searchResults.innerHTML = `<div class="px-4 py-6 text-center text-xs font-semibold text-slate-500">Santri tidak ditemukan</div>`;
+                }
+            });
+        }
+
+        if(clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = ''; 
+                searchResults.classList.add('hidden'); 
+                clearSearchBtn.classList.add('hidden');
+                const selCard = document.getElementById('selected-student-card');
+                if(selCard) selCard.classList.add('hidden'); 
+                selectedStudent = null; 
+                searchInput.focus();
+            });
+        }
+        
+        const btnSave = document.getElementById('btn-save');
+        if(btnSave) btnSave.addEventListener('click', saveLatenessRecord);
+        
+        const btnCopyWa = document.getElementById('btn-copy-wa');
+        if(btnCopyWa) btnCopyWa.addEventListener('click', copyReportToWA);
+        
+        const btnSaveSettings = document.getElementById('btn-save-settings');
+        if(btnSaveSettings) {
+            btnSaveSettings.addEventListener('click', () => {
+                const h = document.getElementById('set-h').value;
+                const m = document.getElementById('set-m').value;
+                jamMasukSetting = `${h}:${m}`;
+                localStorage.setItem('santri_jamMasuk', jamMasukSetting);
+                showToast('Pengaturan Waktu Tersimpan!');
+            });
+        }
+    }
+
+    function fetchMasterDataCSV() {
+        Papa.parse(csvMasterUrl, {
+            download: true, header: true, skipEmptyLines: true,
+            complete: function(results) {
+                if(results.data && results.data.length > 0) {
+                    studentsData = results.data;
+                    const loader = document.getElementById('loading-indicator');
+                    const mainContent = document.getElementById('main-content');
+                    if(loader) loader.classList.add('hidden');
+                    if(mainContent) mainContent.classList.remove('hidden');
+                } else {
+                    showErrorState("Database Santri Utama (CSV) Kosong.");
+                }
+            },
+            error: () => showErrorState("Gagal memuat Database Santri Utama.")
+        });
+    }
+
+    function fetchLatenessHistory(isManualRefresh = false) {
+        if(isManualRefresh) {
+            const icon = document.getElementById('refresh-icon');
+            if(icon) icon.classList.add('animate-spin');
+        }
+        Papa.parse(reportCsvUrl, {
+            download: true, header: true, skipEmptyLines: true,
+            complete: function(results) {
+                if(results.data) {
+                    allLatenessRecords = results.data.map(row => ({
+                        tanggal: row['Tanggal'] || '',
+                        nama: row['Nama Siswa'] || '',
+                        kelas_tahfizh: row['Kelas Tahfizh'] || '',
+                        wali_tahfizh: row['Wali Kelas Tahfizh'] || '',
+                        kelas_sd: row['Kelas SD'] || '',
+                        wali_sd: row['Wali Kelas SD'] || '',
+                        menit_terlambat: parseInt(row['Jumlah Terlambat (Menit)']) || 0
+                    })).filter(r => r.nama !== '');
+                    
+                    renderTable();
+                    if(isManualRefresh) {
+                        showToast("Data Laporan Berhasil Diperbarui!");
+                        const icon = document.getElementById('refresh-icon');
+                        if(icon) icon.classList.remove('animate-spin');
+                    }
+                }
+            },
+            error: () => {
+                if(isManualRefresh) {
+                    showToast("Gagal menyegarkan data. Periksa jaringan.", "error");
+                    const icon = document.getElementById('refresh-icon');
+                    if(icon) icon.classList.remove('animate-spin');
+                }
+            }
+        });
+    }
+
+    function showErrorState(msg) {
+        const loader = document.getElementById('loading-indicator');
+        if(loader) {
+            loader.innerHTML = `
+                <div class="text-red-500 text-center bg-red-50 p-6 rounded-2xl border border-red-200">
+                    <i class="ph ph-warning-octagon text-5xl mb-2"></i><p class="font-bold mb-1">Koneksi Gagal</p>
+                    <p class="text-xs font-medium mb-4">${msg}</p>
+                    <button onclick="location.reload()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md">Muat Ulang Halaman</button>
+                </div>
+            `;
+        }
+    }
+
+    function getAkumulasiCount(namaSiswa) {
+        if(!allLatenessRecords || allLatenessRecords.length === 0) return 0;
+        return allLatenessRecords.filter(r => r.nama.toLowerCase() === namaSiswa.toLowerCase()).length;
+    }
+
+    function switchTab(tabId) {
+        ['tab-catat', 'tab-laporan', 'tab-pengaturan'].forEach(id => {
+            const el = document.getElementById('tab-' + id.split('-')[1]);
+            if(el) el.classList.add('hidden');
+        });
+        ['nav-catat', 'nav-laporan', 'nav-pengaturan'].forEach(id => {
+            const navEl = document.getElementById(id);
+            if(navEl) navEl.className = "flex-1 py-3 text-sm font-bold rounded-xl text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-95";
+        });
+        
+        const activeTab = document.getElementById('tab-' + tabId);
+        const activeNav = document.getElementById('nav-' + tabId);
+        if(activeTab) activeTab.classList.remove('hidden');
+        if(activeNav) activeNav.className = "flex-1 py-3 text-sm font-bold rounded-xl bg-emerald-600 text-white shadow-md transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-95";
+        
+        if (tabId === 'laporan') renderTable();
+    }
+
+    function selectStudent(s) {
+        selectedStudent = s;
+        const sName = s['Nama Siswa'] || s['NAMA SISWA'] || '-';
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        if(searchInput) searchInput.value = toTitleCase(sName);
+        if(searchResults) searchResults.classList.add('hidden');
+        
+        const photoEl = document.getElementById('sel-foto');
+        const resolvedPhotoUrl = extractPhotoUrl(s, sName);
+        if(photoEl) {
+            photoEl.src = resolvedPhotoUrl;
+            photoEl.onerror = () => { photoEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sName)}&background=10b981&color=fff&bold=true`; };
+        }
+        
+        const setEl = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+        setEl('sel-nama', sName);
+        setEl('sel-kelas-tahfizh', s['ROMBEL TAHFIZH'] || s['ROMBEL_TAHFIZH'] || '-');
+        setEl('sel-wali-tahfizh', s['WALI KELAS TAHFIZH'] || s['WALI_KELAS_TAHFIZH'] || '-');
+        setEl('sel-kelas-sd', s['KELAS SD'] || s['KELAS_SD'] || '-');
+        setEl('sel-wali-sd', s['WALI KELAS SD'] || s['WALI_KELAS_SD'] || '-');
+        
+        const selCard = document.getElementById('selected-student-card');
+        if(selCard) selCard.classList.remove('hidden');
+        
+        const now = new Date();
+        const arrH = document.getElementById('arr-h');
+        const arrM = document.getElementById('arr-m');
+        if(arrH) arrH.value = String(now.getHours()).padStart(2, '0');
+        if(arrM) arrM.value = String(now.getMinutes()).padStart(2, '0');
+        updateLateMinutes();
+    }
+
+    function updateLateMinutes() {
+        const arrH = parseInt(document.getElementById('arr-h')?.value);
+        const arrM = parseInt(document.getElementById('arr-m')?.value);
+        
+        if(!isNaN(arrH) && !isNaN(arrM)) {
+            const [schH, schM] = jamMasukSetting.split(':').map(Number);
+            let diff = (arrH * 60 + arrM) - (schH * 60 + schM);
+            const lateInput = document.getElementById('late-minutes');
+            if(lateInput) lateInput.value = diff > 0 ? diff : 0;
+        }
+    }
+
+    function saveLatenessRecord() {
+        if (!selectedStudent) return;
+        
+        const arrH = document.getElementById('arr-h')?.value || '00';
+        const arrM = document.getElementById('arr-m')?.value || '00';
+        const menitTerlambat = document.getElementById('late-minutes')?.value || '0';
+        
+        const now = new Date();
+        const tanggalWaktu = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(arrH).padStart(2,'0')}:${String(arrM).padStart(2,'0')}`;
+        
+        const sName = selectedStudent['Nama Siswa'] || selectedStudent['NAMA SISWA'] || '-';
+        const payload = {
+            action: 'add',
+            tanggal: tanggalWaktu,
+            nama: sName,
+            kelas_tahfizh: selectedStudent['ROMBEL TAHFIZH'] || selectedStudent['ROMBEL_TAHFIZH'] || '-',
+            wali_tahfizh: selectedStudent['WALI KELAS TAHFIZH'] || selectedStudent['WALI_KELAS_TAHFIZH'] || '-',
+            kelas_sd: selectedStudent['KELAS SD'] || selectedStudent['KELAS_SD'] || '-',
+            wali_sd: selectedStudent['WALI KELAS SD'] || selectedStudent['WALI_KELAS_SD'] || '-',
+            menit_terlambat: parseInt(menitTerlambat) || 0
+        };
+
+        const overlay = document.getElementById('saving-overlay');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        
+        if(overlay) {
+            overlay.classList.remove('hidden'); overlay.classList.add('flex');
+        }
+        
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 15;
+            if (progress > 90) progress = 90;
+            if(progressBar) progressBar.style.width = progress + '%';
+            if(progressText) progressText.textContent = progress + '%';
+        }, 100);
+
+        fetch(gasExecUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(res => {
+            clearInterval(progressInterval);
+            if(progressBar) progressBar.style.width = '100%';
+            if(progressText) progressText.textContent = '100%';
+            
+            setTimeout(() => {
+                if(overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+                if(progressBar) progressBar.style.width = '0%';
+                
+                // Tambahkan langsung ke memori lokal
+                allLatenessRecords.unshift({
+                    tanggal: tanggalWaktu,
+                    nama: sName,
+                    kelas_tahfizh: payload.kelas_tahfizh,
+                    wali_tahfizh: payload.wali_tahfizh,
+                    kelas_sd: payload.kelas_sd,
+                    wali_sd: payload.wali_sd,
+                    menit_terlambat: payload.menit_terlambat
+                });
+                
+                showToast('Berhasil Mencatat Keterlambatan!');
+                const selCard = document.getElementById('selected-student-card');
+                const searchInput = document.getElementById('search-input');
+                if(selCard) selCard.classList.add('hidden');
+                if(searchInput) searchInput.value = '';
+                selectedStudent = null;
+                switchTab('laporan');
+            }, 400);
+        })
+        .catch(err => {
+            clearInterval(progressInterval);
+            if(overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+            showToast('Tersimpan di Lokal (Periksa koneksi Gas)', 'success');
+            switchTab('laporan');
+        });
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('report-tbody'); 
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        
+        const searchTerm = document.getElementById('report-search')?.value.toLowerCase().trim() || '';
+        const filterType = document.getElementById('report-filter-type')?.value || 'today';
+        const todayDateStr = getFormattedDateOnly();
+        
+        let filteredData = allLatenessRecords || [];
+
+        if(filterType === 'today') {
+            filteredData = filteredData.filter(r => r.tanggal && r.tanggal.startsWith(todayDateStr));
+            const lapTgl = document.getElementById('laporan-tanggal');
+            if(lapTgl) lapTgl.textContent = getFormattedDateId();
+        } else if(filterType === 'date') {
+            const dateVal = document.getElementById('report-date-picker')?.value; 
+            if(dateVal) {
+                const [y, m, d] = dateVal.split('-');
+                const targetDateStr = `${d}/${m}/${y}`; 
+                filteredData = filteredData.filter(r => r.tanggal && r.tanggal.startsWith(targetDateStr));
+                const lapTgl = document.getElementById('laporan-tanggal');
+                if(lapTgl) lapTgl.textContent = `Tanggal: ${targetDateStr}`;
+            }
+        } else {
+            const lapTgl = document.getElementById('laporan-tanggal');
+            if(lapTgl) lapTgl.textContent = "Semua Rekam Jejak Keterlambatan";
+        }
+
+        if(searchTerm) {
+            filteredData = filteredData.filter(r => r.nama && r.nama.toLowerCase().includes(searchTerm));
+        }
+        
+        const sorted = [...filteredData].sort((a, b) => b.menit_terlambat - a.menit_terlambat);
+        
+        if (sorted.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-slate-400 font-bold bg-slate-50/50">Belum ada rekam data keterlambatan.</td></tr>`;
+            return;
+        }
+        
+        sorted.forEach((rec, idx) => {
+            const totalAkumulasi = getAkumulasiCount(rec.nama);
+            const tglBagus = rec.tanggal.length > 10 ? rec.tanggal.replace(' ', ' | ') : rec.tanggal;
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-emerald-50 transition-colors">
+                    <td class="py-3 px-3 text-center font-extrabold text-slate-400 text-xs">${idx + 1}.</td>
+                    <td class="py-3 px-3">
+                        <div class="font-extrabold text-slate-800 text-xs truncate max-w-[150px] uppercase">${rec.nama}</div>
+                        <div class="text-[9px] font-semibold text-slate-500 mt-0.5">
+                            SD: ${rec.kelas_sd} | TH: ${rec.kelas_tahfizh}
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <div class="text-emerald-600 font-bold text-[10px] tracking-wider mb-1">${tglBagus}</div>
+                        <span class="inline-block px-1.5 py-0.5 bg-red-100 text-red-700 font-extrabold rounded-md text-[9px]">${rec.menit_terlambat} Mnt</span>
+                    </td>
+                    <td class="py-3 px-3 text-center font-bold text-emerald-600 text-[10px]">${totalAkumulasi} Kali</td>
+                    <td class="py-3 px-3 text-center">
+                        <button onclick="confirmDelete('${rec.tanggal}', '${rec.nama}')" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors shadow-sm">
+                            <i class="ph ph-trash text-lg"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function copyReportToWA() {
+        const todayDateStr = getFormattedDateOnly();
+        const todayRecords = (allLatenessRecords || []).filter(r => r.tanggal && r.tanggal.startsWith(todayDateStr));
+
+        if(todayRecords.length === 0) { showToast('Data terlambat HARI INI masih kosong!', 'error'); return; }
+
+        const dateStr = getFormattedDateId();
+        let msg = `Assalamualaikum warahmatullah wabarakatuh.\n\n`;
+        msg += `Berikut kami sampaikan data santri SD International Tahfizh Quran yang terlambat pada hari ini *${dateStr}*, dengan jumlah *${todayRecords.length} santri*.\n\n`;
+        msg += `Alhamdulillah, mari kita jadikan bahan evaluasi bersama agar kedisiplinan ananda semakin meningkat dan lebih baik lagi ke depannya. `;
+        msg += `Jadwal masuk sekolah adalah pukul *${jamMasukSetting} WIB*.\n\n`;
+        
+        const sorted = [...todayRecords].sort((a, b) => b.menit_terlambat - a.menit_terlambat);
+
+        sorted.forEach((rec, idx) => {
+            const totalAkumulasi = getAkumulasiCount(rec.nama);
+            
+            msg += `*${idx + 1}. Nama Siswa: ${toTitleCase(rec.nama)}*\n`;
+            msg += `   Kelas SD: ${rec.kelas_sd} (${toTitleCase(rec.wali_sd)})\n`;
+            msg += `   Kelas Tahfizh: ${toTitleCase(rec.kelas_tahfizh)} (${toTitleCase(rec.wali_tahfizh)})\n`;
+            msg += `   Jumlah Terlambat: Akumulasi keterlambatan ke-${totalAkumulasi} kalinya.\n\n`;
+        });
+        
+        msg += `Demikian informasi ini disampaikan agar dapat dimaklumi. `;
+        msg += `Mari kita bimbing ananda agar senantiasa disiplin dan tepat waktu.\n\n`;
+        msg += `Wassalamualaikum warahmatullah wabarakatuh.`;
+        
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(msg).then(() => {
+                showToast('Teks Laporan WA Disalin!');
+            }).catch(() => fallbackCopyTextToClipboard(msg));
+        } else {
+            fallbackCopyTextToClipboard(msg);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text) {
+        const textArea = document.createElement("textarea"); 
+        textArea.value = text; 
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea); 
+        textArea.focus();
+        textArea.select();
+        try { 
+            document.execCommand('copy'); 
+            showToast('Teks Laporan WA Disalin!'); 
+        } catch (err) { 
+            showToast('Gagal menyalin, silakan copy manual', 'error'); 
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast'); 
+        const icon = document.getElementById('toast-icon');
+        const msgEl = document.getElementById('toast-msg');
+        if(!toast || !icon || !msgEl) return;
+        
+        msgEl.textContent = message;
+        if (type === 'error') { 
+            toast.classList.replace('bg-slate-800', 'bg-red-600'); 
+            icon.className = "ph ph-warning-circle text-xl"; 
+        } else { 
+            toast.classList.replace('bg-red-600', 'bg-slate-800'); 
+            icon.className = "ph ph-check-circle text-emerald-400 text-xl"; 
+        }
+        toast.classList.remove('translate-y-24', 'opacity-0');
+        setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000);
+    }
+
+    function openPhotoModal(src) {
+        if(!src || src.includes('ui-avatars')) return; 
+        const zoomImg = document.getElementById('zoomed-photo');
+        const modal = document.getElementById('photo-modal');
+        if(zoomImg) zoomImg.src = src;
+        if(modal) {
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+    }
+    
+    function closePhotoModal() {
+        const modal = document.getElementById('photo-modal');
+        if(modal) {
+            modal.classList.add('opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+    }
+
+    function openInstallModal() {
+        const modal = document.getElementById('install-modal'); 
+        const card = document.getElementById('install-card');
+        if(modal && card) {
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modal.classList.remove('opacity-0'); card.classList.remove('translate-y-10'); }, 10);
+        }
+    }
+
+    function closeInstallModal() {
+        const modal = document.getElementById('install-modal'); 
+        const card = document.getElementById('install-card');
+        if(modal && card) {
+            modal.classList.add('opacity-0'); card.classList.add('translate-y-10');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+    }
+    
+    function confirmDelete(tanggal, nama) {
+        recordToDelete = { tanggal, nama };
+        const modal = document.getElementById('confirm-delete-modal');
+        const card = document.getElementById('confirm-delete-card');
+        if(modal && card) {
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modal.classList.remove('opacity-0'); card.classList.remove('scale-95'); }, 10);
+        }
+    }
+
+    function cancelDelete() {
+        const modal = document.getElementById('confirm-delete-modal');
+        const card = document.getElementById('confirm-delete-card');
+        if(modal && card) {
+            modal.classList.add('opacity-0'); card.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); recordToDelete = null; }, 300);
+        }
+    }
+
+    function proceedDelete() {
+        if(!recordToDelete) return;
+        const { tanggal, nama } = recordToDelete;
+        cancelDelete();
+        
+        allLatenessRecords = allLatenessRecords.filter(r => !(r.tanggal === tanggal && r.nama === nama));
+        renderTable();
+        showToast('Menghapus data dari Database...');
+        
+        fetch(gasExecUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'delete', tanggal: tanggal, nama: nama })
+        }).then(res => res.json()).then(res => {
+            if(res.status === 'success') showToast('Berhasil dihapus dari Database!');
+        }).catch(err => console.log('Hapus lokal tereksekusi.'));
+    }
+</script>
+
+</body>
+</html>
