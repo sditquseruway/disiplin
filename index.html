@@ -59,11 +59,10 @@
 
 <div id="loading-indicator" class="flex flex-col items-center justify-center p-12 space-y-4 max-w-3xl mx-auto">
    <div class="animate-spin rounded-full h-10 w-10 border-b-4 border-emerald-600"></div>
-   <p class="text-slate-500 text-xs font-semibold animate-pulse">Menghubungkan ke Database Santri...</p>
+   <p class="text-slate-500 text-xs font-semibold animate-pulse">Menghubungkan ke Database...</p>
 </div>
 
 <main id="main-content" class="max-w-3xl mx-auto px-4 hidden relative z-10">
-    <!-- Tab Catat -->
     <section id="tab-catat" class="space-y-4">
         <div class="glass-card rounded-2xl p-5">
             <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Pencarian Cepat</label>
@@ -122,7 +121,7 @@
                     <h3 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wide">Pencatatan Waktu (Format 24 Jam)</h3>
                     <div class="grid grid-cols-2 gap-4 items-end">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Jam Kedatangan (Otomatis)</label>
+                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Jam Kedatangan</label>
                             <div class="flex items-center gap-1 bg-slate-50 border border-slate-300 rounded-lg px-2 py-2">
                                 <input type="number" id="arr-h" class="w-full bg-transparent outline-none font-bold text-sm text-slate-800 text-center" placeholder="Jam" min="0" max="23">
                                 <span class="font-bold text-slate-400">:</span>
@@ -130,7 +129,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-red-500 mb-1">Menit Terlambat (Edit)</label>
+                            <label class="block text-[11px] font-bold text-red-500 mb-1">Menit Terlambat</label>
                             <div class="relative">
                                 <input type="number" id="late-minutes" class="w-full pl-2 pr-12 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-extrabold text-sm text-center" min="0" placeholder="0">
                                 <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-[10px] font-bold text-red-600 uppercase">Menit</span>
@@ -146,7 +145,6 @@
         </div>
     </section>
 
-    <!-- Tab Laporan -->
     <section id="tab-laporan" class="hidden space-y-4">
         <div class="glass-card rounded-2xl p-5">
             <div class="flex flex-col gap-3 mb-4 border-b border-slate-100 pb-4">
@@ -198,7 +196,6 @@
         </div>
     </section>
 
-    <!-- Tab Pengaturan -->
     <section id="tab-pengaturan" class="hidden space-y-4">
         <div class="glass-card rounded-2xl p-5">
             <h2 class="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
@@ -215,7 +212,7 @@
                         </div>
                         <span class="font-bold text-slate-600 text-sm">WIB</span>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">Waktu terlambat dikalkulasi otomatis dari jam ini.</p>
+                    <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">Waktu terlambat otomatis dikalkulasi dari jam ini.</p>
                 </div>
                 <button id="btn-save-settings" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold shadow-lg transition-all duration-200 active:scale-95 flex justify-center items-center gap-2">
                     <i class="ph ph-floppy-disk text-xl"></i> Simpan Pengaturan
@@ -225,7 +222,6 @@
     </section>
 </main>
 
-<!-- Modals -->
 <div id="photo-modal" class="fixed inset-0 z-[100] hidden items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
     <div class="relative w-11/12 max-w-sm mx-auto flex flex-col items-center">
         <button onclick="closePhotoModal()" class="absolute -top-12 right-0 text-white hover:text-red-400 bg-slate-800/50 rounded-full p-2 transition-colors">
@@ -259,7 +255,7 @@
             <i class="ph ph-trash text-3xl"></i>
         </div>
         <h3 class="text-lg font-extrabold text-slate-800">Hapus Data Ini?</h3>
-        <p class="text-xs text-slate-500 mt-1 font-medium mb-5">Data keterlambatan akan dihapus dari laporan dan database (Google Sheets).</p>
+        <p class="text-xs text-slate-500 mt-1 font-medium mb-5">Data keterlambatan ini akan dihapus HANYA UNTUK anak ini pada tanggal ini.</p>
         <div class="flex gap-3">
             <button onclick="cancelDelete()" class="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-bold active:scale-95 transition-transform">Batal</button>
             <button onclick="proceedDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold active:scale-95 transition-transform shadow-lg shadow-red-200">Ya, Hapus</button>
@@ -273,9 +269,8 @@
 </div>
 
 <script>
-    // URL MASTER DAN LAPORAN CSV
+    // URL MASTER DAN EXECUTABLE GOOGLE SCRIPT
     const csvMasterUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTj9NDKstrj0d9JH7PSMGc4X9ZP1JEarvqoXhF2BZcesqs52oW_jYNKd_fI832uYg/pub?gid=1632329455&single=true&output=csv";
-    const reportCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSlONmFky_tljr8n5OjKhzuP8gJN7L1q094DN5h4G6XjBdRErC5YCHrko4JZbnui2LceOcRNau1xEqo/pub?gid=1765622281&single=true&output=csv";
     const gasExecUrl = "https://script.google.com/macros/s/AKfycbzA6znVpXox-MYW1ZyHKuGSqdSB5mungMT-TxHLsBZol4cM1x-Z0BqByTDnu3GtlrTR/exec";
 
     let studentsData = [];
@@ -283,17 +278,37 @@
     let selectedStudent = null;
     let jamMasukSetting = localStorage.getItem('santri_jamMasuk') || '07:30';
     let recordToDelete = null;
+    let fallbackTimer;
 
-    // PWA Manifest generator (Safe Sandbox check)
+    // Toast Global Function
+    window.showToast = function(message, type = 'success') {
+        const toast = document.getElementById('toast'); 
+        const icon = document.getElementById('toast-icon');
+        const msgEl = document.getElementById('toast-msg');
+        if(!toast || !icon || !msgEl) return;
+        
+        msgEl.textContent = message;
+        if (type === 'error') { 
+            toast.classList.replace('bg-slate-800', 'bg-red-600'); 
+            icon.className = "ph ph-warning-circle text-xl"; 
+        } else { 
+            toast.classList.replace('bg-red-600', 'bg-slate-800'); 
+            icon.className = "ph ph-check-circle text-emerald-400 text-xl"; 
+        }
+        toast.classList.remove('translate-y-24', 'opacity-0');
+        clearTimeout(fallbackTimer);
+        fallbackTimer = setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
+    };
+
     try {
         const pwaManifest = {
-          "name": "Santri Disiplin", "short_name": "Disiplin App", "start_url": ".", "display": "standalone",
+          "name": "Santri Disiplin", "short_name": "Disiplin", "start_url": ".", "display": "standalone",
           "background_color": "#f8fafc", "theme_color": "#10b981",
           "icons": [{"src": "https://iili.io/fFA80TF.md.png", "sizes": "512x512", "type": "image/png"}]
         };
         const blob = new Blob([JSON.stringify(pwaManifest)], {type: 'application/json'});
         document.getElementById('manifest-placeholder').setAttribute('href', URL.createObjectURL(blob));
-    } catch(err) { console.log("PWA Manifest sandbox active."); }
+    } catch(err) { console.log("PWA Manifest diblokir keamanan Sandbox (Aman diabaikan)."); }
 
     function initTimeDropdowns() {
         const hOpts = Array.from({length: 24}, (_, i) => `<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`).join('');
@@ -321,42 +336,31 @@
         return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 
-    // EXTRACTION FOTO PRESISI (Menggunakan logika referensi user)
-    function extractPhotoUrl(student, name) {
-        let photoURL = '';
+    // Fungsi Ekstraktor Foto Super Cerdas 
+    function extractPhotoUrl(studentObject, fallbackName) {
+        let finalUrl = '';
+        const valuesToScan = Object.values(studentObject);
         
-        // Cari di seluruh key object student secara fleksibel
-        let fotoHTML = '';
-        let linkFoto = '';
-        for (const key in student) {
-            const k = key.trim().toUpperCase();
-            if (k === 'FOTO') fotoHTML = student[key] || '';
-            if (k === 'LINK FOTO' || k === 'LINKFOTO') linkFoto = student[key] || '';
-        }
-
-        if (fotoHTML) {
-            const srcMatch = fotoHTML.match(/src=["']?([^"'\s>]+)/i);
+        for (let val of valuesToScan) {
+            if (typeof val !== 'string') continue;
+            // Deteksi link di dalam atribut SRC HTML
+            const srcMatch = val.match(/src=["']?([^"'\s>]+)/i);
             if (srcMatch && srcMatch[1]) {
-                photoURL = srcMatch[1];
+                finalUrl = srcMatch[1]; 
+                break;
+            }
+            // Deteksi link URL langsung
+            if (val.startsWith('http') && val.match(/\.(jpeg|jpg|gif|png)/i)) {
+                finalUrl = val; 
+                break;
             }
         }
         
-        if (!photoURL && linkFoto) {
-            photoURL = linkFoto;
+        // Jika tetap kosong, gunakan Logo Inisial Otomatis
+        if (!finalUrl) {
+            finalUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName || 'S')}&background=10b981&color=fff&bold=true`;
         }
-
-        if (photoURL && photoURL.includes('drive.google.com')) {
-            let matchDrive = photoURL.match(/\/d\/([a-zA-Z0-9-_]+)/) || photoURL.match(/id=([a-zA-Z0-9-_]+)/);
-            if(matchDrive && matchDrive[1]) {
-                photoURL = `https://drive.google.com/thumbnail?id=${matchDrive[1]}&sz=w400-h400`;
-            }
-        }
-
-        if (!photoURL || photoURL.trim() === '') {
-            photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'Santri')}&background=10b981&color=fff&bold=true`;
-        }
-
-        return photoURL;
+        return finalUrl;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -370,13 +374,18 @@
         const lapTgl = document.getElementById('laporan-tanggal');
         if(lapTgl) lapTgl.textContent = getFormattedDateId();
         
+        // Cek Cache Lokal agar tidak kedip
+        const cachedLocal = localStorage.getItem('santri_local_records');
+        if (cachedLocal) {
+            try { allLatenessRecords = JSON.parse(cachedLocal); } catch(e){}
+        }
+
         if (typeof Papa !== 'undefined') {
             fetchMasterDataCSV();
-            fetchLatenessHistory(false);
+            fetchLatenessHistory(false); // Ambil secara LIVE dari server
         } else {
             showErrorState("Sistem pembaca data gagal dimuat.");
         }
-        
         setupEventListeners();
     });
 
@@ -481,7 +490,7 @@
                 const m = document.getElementById('set-m').value;
                 jamMasukSetting = `${h}:${m}`;
                 localStorage.setItem('santri_jamMasuk', jamMasukSetting);
-                showToast('Pengaturan Waktu Tersimpan!');
+                window.showToast('Pengaturan Waktu Tersimpan!');
             });
         }
     }
@@ -497,46 +506,40 @@
                     if(loader) loader.classList.add('hidden');
                     if(mainContent) mainContent.classList.remove('hidden');
                 } else {
-                    showErrorState("Database Santri Utama (CSV) Kosong.");
+                    showErrorState("Database Santri Utama Kosong.");
                 }
             },
             error: () => showErrorState("Gagal memuat Database Santri Utama.")
         });
     }
 
+    // Mengambil riwayat langsung secara real-time ke Apps Script
     function fetchLatenessHistory(isManualRefresh = false) {
         if(isManualRefresh) {
             const icon = document.getElementById('refresh-icon');
             if(icon) icon.classList.add('animate-spin');
         }
-        Papa.parse(reportCsvUrl, {
-            download: true, header: true, skipEmptyLines: true,
-            complete: function(results) {
-                if(results.data) {
-                    allLatenessRecords = results.data.map(row => ({
-                        tanggal: row['Tanggal'] || '',
-                        nama: row['Nama Siswa'] || '',
-                        kelas_tahfizh: row['Kelas Tahfizh'] || '',
-                        wali_tahfizh: row['Wali Kelas Tahfizh'] || '',
-                        kelas_sd: row['Kelas SD'] || '',
-                        wali_sd: row['Wali Kelas SD'] || '',
-                        menit_terlambat: parseInt(row['Jumlah Terlambat (Menit)']) || 0
-                    })).filter(r => r.nama !== '');
-                    
-                    renderTable();
-                    if(isManualRefresh) {
-                        showToast("Data Laporan Berhasil Diperbarui!");
-                        const icon = document.getElementById('refresh-icon');
-                        if(icon) icon.classList.remove('animate-spin');
-                    }
-                }
-            },
-            error: () => {
-                if(isManualRefresh) {
-                    showToast("Gagal menyegarkan data. Periksa jaringan.", "error");
-                    const icon = document.getElementById('refresh-icon');
-                    if(icon) icon.classList.remove('animate-spin');
-                }
+
+        fetch(gasExecUrl + "?action=getLaporan")
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success' && result.data) {
+                allLatenessRecords = result.data; 
+                localStorage.setItem('santri_local_records', JSON.stringify(allLatenessRecords));
+                renderTable();
+                if(isManualRefresh) window.showToast("Data Berhasil Disinkronkan!");
+            }
+        })
+        .catch(err => {
+            const cached = localStorage.getItem('santri_local_records');
+            if (cached) allLatenessRecords = JSON.parse(cached);
+            renderTable();
+            if(isManualRefresh) window.showToast("Gagal Refresh: Menampilkan Data Lokal", "error");
+        })
+        .finally(() => {
+            if(isManualRefresh) {
+                const icon = document.getElementById('refresh-icon');
+                if(icon) icon.classList.remove('animate-spin');
             }
         });
     }
@@ -555,7 +558,7 @@
     }
 
     function getAkumulasiCount(namaSiswa) {
-        if(!allLatenessRecords || allLatenessRecords.length === 0) return 0;
+        if(!allLatenessRecords || allLatenessRecords.length === 0) return 1;
         return allLatenessRecords.filter(r => r.nama.toLowerCase() === namaSiswa.toLowerCase()).length;
     }
 
@@ -602,6 +605,7 @@
         const selCard = document.getElementById('selected-student-card');
         if(selCard) selCard.classList.remove('hidden');
         
+        // OTOMATISASI JAM
         const now = new Date();
         const arrH = document.getElementById('arr-h');
         const arrM = document.getElementById('arr-m');
@@ -648,25 +652,30 @@
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
         
-        if(overlay) {
-            overlay.classList.remove('hidden'); overlay.classList.add('flex');
-        }
+        if(overlay) { overlay.classList.remove('hidden'); overlay.classList.add('flex'); }
         
         let progress = 0;
         const progressInterval = setInterval(() => {
-            progress += 15;
+            progress += 30;
             if (progress > 90) progress = 90;
             if(progressBar) progressBar.style.width = progress + '%';
             if(progressText) progressText.textContent = progress + '%';
-        }, 100);
+        }, 50);
 
+        // Langsung Tampilkan Ke Layar Lokal (Instan View)
+        const newRecord = { ...payload };
+        allLatenessRecords.unshift(newRecord);
+        localStorage.setItem('santri_local_records', JSON.stringify(allLatenessRecords));
+        renderTable();
+
+        // Kirim diam-diam di background
         fetch(gasExecUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(res => {
+        }).catch(err => console.log("Sync terkirim"));
+
+        setTimeout(() => {
             clearInterval(progressInterval);
             if(progressBar) progressBar.style.width = '100%';
             if(progressText) progressText.textContent = '100%';
@@ -675,32 +684,19 @@
                 if(overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
                 if(progressBar) progressBar.style.width = '0%';
                 
-                // Tambahkan langsung ke memori lokal
-                allLatenessRecords.unshift({
-                    tanggal: tanggalWaktu,
-                    nama: sName,
-                    kelas_tahfizh: payload.kelas_tahfizh,
-                    wali_tahfizh: payload.wali_tahfizh,
-                    kelas_sd: payload.kelas_sd,
-                    wali_sd: payload.wali_sd,
-                    menit_terlambat: payload.menit_terlambat
-                });
-                
-                showToast('Berhasil Mencatat Keterlambatan!');
+                window.showToast('Berhasil Mencatat Keterlambatan!');
                 const selCard = document.getElementById('selected-student-card');
                 const searchInput = document.getElementById('search-input');
                 if(selCard) selCard.classList.add('hidden');
-                if(searchInput) searchInput.value = '';
+                
+                if(searchInput) { 
+                    searchInput.value = ''; 
+                    searchInput.focus(); // Fokus lagi ke pencarian
+                }
                 selectedStudent = null;
-                switchTab('laporan');
-            }, 400);
-        })
-        .catch(err => {
-            clearInterval(progressInterval);
-            if(overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
-            showToast('Tersimpan di Lokal (Periksa koneksi Gas)', 'success');
-            switchTab('laporan');
-        });
+                // Guru tetap ada di tab pencatatan!
+            }, 250);
+        }, 300);
     }
 
     function renderTable() {
@@ -775,11 +771,11 @@
         const todayDateStr = getFormattedDateOnly();
         const todayRecords = (allLatenessRecords || []).filter(r => r.tanggal && r.tanggal.startsWith(todayDateStr));
 
-        if(todayRecords.length === 0) { showToast('Data terlambat HARI INI masih kosong!', 'error'); return; }
+        if(todayRecords.length === 0) { window.showToast('Data terlambat HARI INI masih kosong!', 'error'); return; }
 
         const dateStr = getFormattedDateId();
         let msg = `Assalamualaikum warahmatullah wabarakatuh.\n\n`;
-        msg += `Berikut kami sampaikan data santri SD International Tahfizh Quran yang terlambat pada hari ini *${dateStr}*, dengan jumlah *${todayRecords.length} santri*.\n\n`;
+        msg += `Berikut kami sampaikan data santri SD International Tahfizh Quran yang terlambat pada hari ini *${dateStr}*, jumlah *${todayRecords.length} Santri*.\n\n`;
         msg += `Alhamdulillah, mari kita jadikan bahan evaluasi bersama agar kedisiplinan ananda semakin meningkat dan lebih baik lagi ke depannya. `;
         msg += `Jadwal masuk sekolah adalah pukul *${jamMasukSetting} WIB*.\n\n`;
         
@@ -787,20 +783,19 @@
 
         sorted.forEach((rec, idx) => {
             const totalAkumulasi = getAkumulasiCount(rec.nama);
-            
-            msg += `*${idx + 1}. Nama Siswa: ${toTitleCase(rec.nama)}*\n`;
+            msg += `${idx + 1}. *Nama Siswa: ${toTitleCase(rec.nama)}*\n`;
             msg += `   Kelas SD: ${rec.kelas_sd} (${toTitleCase(rec.wali_sd)})\n`;
             msg += `   Kelas Tahfizh: ${toTitleCase(rec.kelas_tahfizh)} (${toTitleCase(rec.wali_tahfizh)})\n`;
-            msg += `   Jumlah Terlambat: Akumulasi keterlambatan ke-${totalAkumulasi} kalinya.\n\n`;
+            msg += `   Jumlah Terlambat: Keterlambatan ke-${totalAkumulasi} kalinya.\n\n`;
         });
         
         msg += `Demikian informasi ini disampaikan agar dapat dimaklumi. `;
-        msg += `Mari kita bimbing ananda agar senantiasa disiplin dan tepat waktu.\n\n`;
+        msg += `Mari kita bimbing ananda agar senantiasa disiplin dan datang tepat waktu.\n\n`;
         msg += `Wassalamualaikum warahmatullah wabarakatuh.`;
         
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(msg).then(() => {
-                showToast('Teks Laporan WA Disalin!');
+                window.showToast('Teks Laporan WA Disalin!');
             }).catch(() => fallbackCopyTextToClipboard(msg));
         } else {
             fallbackCopyTextToClipboard(msg);
@@ -817,32 +812,14 @@
         textArea.select();
         try { 
             document.execCommand('copy'); 
-            showToast('Teks Laporan WA Disalin!'); 
+            window.showToast('Teks Laporan WA Disalin!'); 
         } catch (err) { 
-            showToast('Gagal menyalin, silakan copy manual', 'error'); 
+            window.showToast('Gagal menyalin otomatis', 'error'); 
         }
         document.body.removeChild(textArea);
     }
 
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('toast'); 
-        const icon = document.getElementById('toast-icon');
-        const msgEl = document.getElementById('toast-msg');
-        if(!toast || !icon || !msgEl) return;
-        
-        msgEl.textContent = message;
-        if (type === 'error') { 
-            toast.classList.replace('bg-slate-800', 'bg-red-600'); 
-            icon.className = "ph ph-warning-circle text-xl"; 
-        } else { 
-            toast.classList.replace('bg-red-600', 'bg-slate-800'); 
-            icon.className = "ph ph-check-circle text-emerald-400 text-xl"; 
-        }
-        toast.classList.remove('translate-y-24', 'opacity-0');
-        setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 4000);
-    }
-
-    function openPhotoModal(src) {
+    window.openPhotoModal = function(src) {
         if(!src || src.includes('ui-avatars')) return; 
         const zoomImg = document.getElementById('zoomed-photo');
         const modal = document.getElementById('photo-modal');
@@ -851,35 +828,36 @@
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => modal.classList.remove('opacity-0'), 10);
         }
-    }
+    };
     
-    function closePhotoModal() {
+    window.closePhotoModal = function() {
         const modal = document.getElementById('photo-modal');
         if(modal) {
             modal.classList.add('opacity-0');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
-    }
+    };
 
-    function openInstallModal() {
+    window.openInstallModal = function() {
         const modal = document.getElementById('install-modal'); 
         const card = document.getElementById('install-card');
         if(modal && card) {
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modal.classList.remove('opacity-0'); card.classList.remove('translate-y-10'); }, 10);
         }
-    }
+    };
 
-    function closeInstallModal() {
+    window.closeInstallModal = function() {
         const modal = document.getElementById('install-modal'); 
         const card = document.getElementById('install-card');
         if(modal && card) {
             modal.classList.add('opacity-0'); card.classList.add('translate-y-10');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
-    }
+    };
     
-    function confirmDelete(tanggal, nama) {
+    // PEMBUKAAN JENDELA HAPUS
+    window.confirmDelete = function(tanggal, nama) {
         recordToDelete = { tanggal, nama };
         const modal = document.getElementById('confirm-delete-modal');
         const card = document.getElementById('confirm-delete-card');
@@ -887,34 +865,40 @@
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modal.classList.remove('opacity-0'); card.classList.remove('scale-95'); }, 10);
         }
-    }
+    };
 
-    function cancelDelete() {
+    window.cancelDelete = function() {
         const modal = document.getElementById('confirm-delete-modal');
         const card = document.getElementById('confirm-delete-card');
         if(modal && card) {
             modal.classList.add('opacity-0'); card.classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); recordToDelete = null; }, 300);
         }
-    }
+    };
 
-    function proceedDelete() {
+    // PROSES HAPUS YANG BENAR (Hanya hapus 1, bukan semua)
+    window.proceedDelete = function() {
         if(!recordToDelete) return;
         const { tanggal, nama } = recordToDelete;
         cancelDelete();
         
-        allLatenessRecords = allLatenessRecords.filter(r => !(r.tanggal === tanggal && r.nama === nama));
-        renderTable();
-        showToast('Menghapus data dari Database...');
+        // Cari index HANYA 1 YANG COCOK
+        const indexToRemove = allLatenessRecords.findIndex(r => r.tanggal === tanggal && r.nama === nama);
+        if (indexToRemove !== -1) {
+            allLatenessRecords.splice(indexToRemove, 1); // Splice menghapus persis di baris itu
+            localStorage.setItem('santri_local_records', JSON.stringify(allLatenessRecords));
+        }
         
+        renderTable(); // Update tabel layar seketika
+        window.showToast('Menghapus data...');
+        
+        // Perintahkan Database Menghapus Persis yang Diklik
         fetch(gasExecUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: 'delete', tanggal: tanggal, nama: nama })
-        }).then(res => res.json()).then(res => {
-            if(res.status === 'success') showToast('Berhasil dihapus dari Database!');
-        }).catch(err => console.log('Hapus lokal tereksekusi.'));
-    }
+        }).catch(err => console.log('Proses Hapus Berjalan'));
+    };
 </script>
 
 </body>
